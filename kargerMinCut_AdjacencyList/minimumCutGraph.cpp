@@ -8,24 +8,28 @@
 #include <cstdlib> //Utilize rand & srand functions
 #include <time.h> //Seed srand function with time(0)
 
-
-class edgeObj;
+class edgeObj; //forward declare edgeObj for definition of vertexObj
 class vertexObj {
     public:
         /*CONSTRUCTORS*/
         vertexObj(): vertDegrees(0) {} //default no input constructor
-        vertexObj(int &idInput) { //custom constructor, id input
+        vertexObj(const int &idInput) { //custom constructor, id input
             setVertexId(idInput);
             resetDegrees();
         }
-        vertexObj(const vertexObj &copyVertex){ //copy constructor
+        vertexObj(const vertexObj &copyVertex) { //copy constructor
             vertId = copyVertex.getVertId();
             connEdgeList = copyVertex.getEdgePtrs();
             vertDegrees = copyVertex.getDegrees();
         }
 
         /*DESTRUCTOR*/
-        ~vertexObj() {}
+        ~vertexObj() {
+            //Below can be made obsolete by use of smart pointers in future release
+            //for (edgeObj* i : connEdgeList) {
+            //    delete i;
+            //}
+        }
 
         /*OVERLOAD OPERATORS*/
         
@@ -43,26 +47,17 @@ class vertexObj {
         }
 
         /*CLASS METHODS*/
-        void setVertexId(const int idInput){
-            vertId = idInput;
-        }
-        int const getVertId() const{
-            return vertId;
-        }
+        void setVertexId(const int idInput) {vertId = idInput;}
+
+        int const getVertId() const {return vertId;}
+
         void addConnEdge(edgeObj* &connEdgePtr){ //adds pointer to the pointer to the adjacent vertex vector
             connEdgeList.push_back(connEdgePtr);
             vertDegrees++;
         }
-        std::vector<edgeObj*> const getEdgePtrs() const{
-            return connEdgeList;
-        }
-        //void replaceAdjEdge(vertexObj* oldVertPtr, vertexObj* newVertPtr){
-        //    for (int i=0;i<connEdgeList.size();i++){
-        //        if (connEdgeList[i]->getVertId()==oldVertPtr->getVertId()){
-        //            connEdgeList[i]=newVertPtr;
-        //        }
-        //    }
-        //}
+
+        std::vector<edgeObj*> const getEdgePtrs() const {return connEdgeList;}
+
         void removeConnEdge(edgeObj* &aEdgePtr){
             int index = 0, asize=0;
             do {
@@ -74,15 +69,13 @@ class vertexObj {
                 else index++;
             } while (index < connEdgeList.size());
         }
-        void resetAdjVerts(){
-            connEdgeList.clear();
-        }
-        void resetDegrees(){
-            vertDegrees = 0;
-        }
-        int const getDegrees() const {
-            return vertDegrees;
-        }
+
+        void resetAdjVerts(){connEdgeList.clear();}
+
+        void resetDegrees(){vertDegrees = 0;}
+
+        int const getDegrees() const {return vertDegrees;}
+
     private:
         int vertId; //unique ID of vertex, manually set (necessary for edge list creation from .txt file)
         int vertDegrees; //number of edges connected to this vertex
@@ -92,25 +85,18 @@ class vertexObj {
 
 class edgeObj {
     public:
-        edgeObj(vertexObj* &aVert, vertexObj* &bVert)
-        {
-            firstVert = aVert;
-            secondVert = bVert;
-            toDelete = false;
-        }
+        edgeObj(vertexObj* &aVert, vertexObj* &bVert) : firstVert(aVert), secondVert(bVert), toDelete(false) {}
+
         ~edgeObj() {}
-        vertexObj* const getFirstVert() const{
-            return firstVert;
-        }
-        vertexObj* const getSecondVert() const{
-            return secondVert;
-        }
-        void changeFirstVert(vertexObj* &chgFirst){
-            firstVert = chgFirst;
-        }
-        void changeSecondVert(vertexObj* &chgSec){
-            secondVert = chgSec;
-        }
+
+        vertexObj* const getFirstVert() const {return firstVert;}
+
+        vertexObj* const getSecondVert() const {return secondVert;}
+
+        void changeFirstVert(vertexObj* &chgFirst) {firstVert = chgFirst;}
+
+        void changeSecondVert(vertexObj* &chgSec) {secondVert = chgSec;}
+
         bool const isVertInEdge(vertexObj* &vertA) const{
             if (firstVert == vertA){
                 return true;
@@ -517,6 +503,7 @@ void graphDebug(graphAdjList &graphA)
 }
 int main() 
 {
+    std::srand(time(0));
     std::string inFileName = "graphInput.txt";
     graphAdjList testGraph(inFileName);
     //graphDebug(testGraph);
